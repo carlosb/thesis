@@ -64,10 +64,10 @@ def train(X, y, c, lm=0.5, eta=0.5):
 
     # Compute weights
     w = dot(dot(inv(dot(A.T, A) + eta * np.identity(n)), A.T), y)
-
     return w
 
 
+# Dictionary to convert to numeric data
 target_cleanup = {'M': 1, 'B': 0}
 
 # Load dataset
@@ -83,8 +83,10 @@ targets = df[target_column].replace(target_cleanup)
 X = inputs.as_matrix()
 y = targets.as_matrix()
 
+# Preprocess
 X = scale(X)
 
+# Split dataset into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
 # Set parameters
