@@ -71,9 +71,10 @@ target_cleanup = {'M': 1, 'B': 0}
 df = pd.read_csv('datasets/breast_cancer/WDBC.csv', header=None)
 
 # Remove target column from inputs and extract it
-target_column_name = df.columns[1]
-inputs = df.drop([df.columns[0], target_column_name], axis=1)
-targets = df[target_column_name].replace(target_cleanup)
+id_column = df.columns[0]
+target_column = df.columns[1]
+inputs = df.drop([id_column, target_column], axis=1)
+targets = df[target_column].replace(target_cleanup)
 
 # Convert to matrix
 X = inputs.as_matrix()
@@ -88,17 +89,23 @@ c = 0.001           # parameter constant
 lm = 0.1       # lambda
 eta = 0.1      # eta
 
+# Compute weights
 w = train(X_train, y_train, c, lm, eta)
 
+# Predict
 acc = 0
 for i, x in enumerate(X_test):
+    # note that we need the dataset which we trained with
     pred = u(x, w, X_train, c)
+
+    # threshold values
     if pred > 0.5:
         pred = 1
     else:
         pred = 0
 
+    # compare
     if pred == y_test[i]:
         acc += 1
-
-print acc / float(len(X_test)) * 100
+acc = acc / float(len(X_test)) * 100.
+print acc
