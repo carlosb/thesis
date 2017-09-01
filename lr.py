@@ -1,3 +1,6 @@
+"""This file contains a quick implementation of the
+supervised learning algorithm called Laplacian Regularization (LR).
+"""
 import numpy as np
 import pandas as pd
 from numpy import dot
@@ -85,7 +88,7 @@ X = scale(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
 
 # Set parameters
-c = 0.001           # parameter constant
+c = 0.001      # parameter constant
 lm = 0.1       # lambda
 eta = 0.1      # eta
 
