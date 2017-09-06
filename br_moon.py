@@ -2,14 +2,12 @@
 supervised learning algorithm called Laplacian Regularization (LR).
 """
 import numpy as np
-import pandas as pd
 from numpy import dot
 from numpy.linalg import inv, norm
+from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
-from sklearn.decomposition import PCA
-from matplotlib import pyplot as plt
-from sklearn.datasets import make_moons
+from sklearn.datasets import make_moons, make_circles
 
 
 def phi_biharmonic(x, xi, c, d):
@@ -83,10 +81,16 @@ def train(X, y, c, lm=0.5, eta=0.5):
 
 
 # Load dataset
-X, y = make_moons(n_samples=400, noise=0.2, random_state=42)
+X, y = make_moons(n_samples=400, noise=0.3, random_state=42)
+# X, y = make_circles(n_samples=400, noise=0.5, random_state=42)
 
 # Preprocess
 X = scale(X)
+
+# Set parameters
+c = 0.798460891505  # parameter constant
+lm = 0.001  # lambda
+eta = 0.1  # eta
 
 # Train and validate
 k = 1
@@ -94,31 +98,10 @@ k_cross_validation_mean = 0.
 for ki in range(k):
     print 'k =', ki
     # Split dataset into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Create meshgrids
-    xl = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 300)
-    yl = np.linspace(X_test[:, 1].min(), X_test[:, 1].max(), 300)
-    xx, yy = np.meshgrid(xl, yl)
-    Z = np.c_[xx.ravel(), yy.ravel()]
-
-    # Set parameters
-    c = 1  # parameter constant
-    lm = 0.001  # lambda
-    eta = 0.1  # eta
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     # Compute weights
     w = train(X_train, y_train, c, lm, eta)
-
-    # Predict meshgrid
-    P_mesh = np.zeros((Z.shape[0]))
-    for i, x in enumerate(Z):
-        # note that we need the dataset which we trained with
-        pred = u(x, w, X_train, c)
-        P_mesh[i] = pred
-    P_mesh[np.where(P_mesh > 0.5)] = 1
-    P_mesh[np.where(P_mesh <= 0.5)] = 0
-    Z = P_mesh.reshape(xx.shape)
 
     # Predict test set
     P_test = np.zeros(y_test.shape)
@@ -126,10 +109,6 @@ for ki in range(k):
         # note that we need the dataset which we trained with
         pred = u(x, w, X_train, c)
         P_test[i] = pred
-
-    # Plot
-    plt.contour(xx, yy, Z)
-    plt.scatter(X[:, 0], X[:, 1], c=y)
 
     P_test[np.where(P_test > 0.5)] = 1
     P_test[np.where(P_test <= 0.5)] = 0
@@ -140,5 +119,26 @@ for ki in range(k):
 
 k_cross_validation_mean /= k
 print 'K-Cross Validation score: ', k_cross_validation_mean
+
+# Create meshgrids
+xl = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 300)
+yl = np.linspace(X_test[:, 1].min(), X_test[:, 1].max(), 300)
+xx, yy = np.meshgrid(xl, yl)
+Z = np.c_[xx.ravel(), yy.ravel()]
+
+# Predict meshgrid
+P_mesh = np.zeros((Z.shape[0]))
+for i, x in enumerate(Z):
+    # note that we need the dataset which we trained with
+    pred = u(x, w, X_train, c)
+    P_mesh[i] = pred
+    P_mesh[np.where(P_mesh > 0.5)] = 1
+    P_mesh[np.where(P_mesh <= 0.5)] = 0
+Z = P_mesh.reshape(xx.shape)
+
+# Plot
+plt.contour(xx, yy, Z)
+plt.scatter(X[:, 0], X[:, 1], c=y)
+
 plt.title('br')
 plt.show()
