@@ -1,13 +1,14 @@
 """This file contains a quick implementation of the
-supervised learning algorithm called Laplacian Regularization (LR).
+supervised learning algorithm called Biharmonic Regularization (BR).
 """
 import numpy as np
+import pandas as pd
 from numpy import dot
 from numpy.linalg import inv, norm
-from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
-from sklearn.datasets import make_moons, make_circles
+from sklearn.decomposition import PCA
+from matplotlib import pyplot as plt
 
 
 def phi_biharmonic(x, xi, c, d):
@@ -80,19 +81,31 @@ def train(X, y, c, lm=0.5, eta=0.5):
     return w
 
 
+# Dictionary to convert to numeric data
+target_cleanup = {'M': 1, 'B': 0}
+
 # Load dataset
-X, y = make_moons(n_samples=400, noise=0.3, random_state=42)
-# X, y = make_circles(n_samples=400, noise=0.5, random_state=42)
+df = pd.read_csv('datasets/breast_cancer/WDBC.csv', header=None)
+
+# Remove target column from inputs and extract it
+id_column = df.columns[0]
+target_column = df.columns[1]
+inputs = df.drop([id_column, target_column], axis=1)
+targets = df[target_column].replace(target_cleanup)
+
+# Convert to matrix
+X = inputs.as_matrix()
+y = targets.as_matrix()
 
 # Preprocess
 X = scale(X)
+print X.shape
 
-# Set parameters
-c = 0.798460891505  # parameter constant
-lm = 0.001  # lambda
-eta = 0.1  # eta
+# Visualize 2-D
+pca = PCA(2)
+X_2D = pca.fit_transform(X)
+plt.scatter(X_2D[:, 0], X_2D[:, 1], c=y)
 
-# Train and validate
 k = 1
 k_cross_validation_mean = 0.
 for ki in range(k):
@@ -100,45 +113,29 @@ for ki in range(k):
     # Split dataset into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+    # Set parameters
+    c = 0.01  # parameter constant
+    lm = 0.001  # lambda
+    eta = 0.1  # eta
+
     # Compute weights
     w = train(X_train, y_train, c, lm, eta)
 
-    # Predict test set
-    P_test = np.zeros(y_test.shape)
+    # Predict
+    acc = 0
+    P = np.zeros(y_test.shape)
     for i, x in enumerate(X_test):
         # note that we need the dataset which we trained with
         pred = u(x, w, X_train, c)
-        P_test[i] = pred
+        P[i] = pred
 
-    P_test[np.where(P_test > 0.5)] = 1
-    P_test[np.where(P_test <= 0.5)] = 0
-    acc = np.sum(P_test == y_test) / float(len(X_test)) * 100.
+    P[np.where(P > 0.5)] = 1
+    P[np.where(P <= 0.5)] = 0
+    acc = np.sum(P == y_test) / float(len(X_test)) * 100.
     print '%.2f%s correct with n =' % (acc, '%'), len(X_test)
 
     k_cross_validation_mean += acc
 
 k_cross_validation_mean /= k
 print 'K-Cross Validation score: ', k_cross_validation_mean
-
-# Create meshgrids
-xl = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 300)
-yl = np.linspace(X_test[:, 1].min(), X_test[:, 1].max(), 300)
-xx, yy = np.meshgrid(xl, yl)
-Z = np.c_[xx.ravel(), yy.ravel()]
-
-# Predict meshgrid
-P_mesh = np.zeros((Z.shape[0]))
-for i, x in enumerate(Z):
-    # note that we need the dataset which we trained with
-    pred = u(x, w, X_train, c)
-    P_mesh[i] = pred
-    P_mesh[np.where(P_mesh > 0.5)] = 1
-    P_mesh[np.where(P_mesh <= 0.5)] = 0
-Z = P_mesh.reshape(xx.shape)
-
-# Plot
-plt.contour(xx, yy, Z)
-plt.scatter(X[:, 0], X[:, 1], c=y)
-
-plt.title('br')
 plt.show()

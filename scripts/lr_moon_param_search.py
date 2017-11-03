@@ -4,10 +4,17 @@ supervised learning algorithm called Laplacian Regularization (LR).
 import numpy as np
 from numpy import dot
 from numpy.linalg import inv, norm
-from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
-from sklearn.datasets import make_moons, make_circles
+from sklearn.datasets import make_moons
+
+
+def phi_biharmonic(x, xi, c, d):
+    """Returns biharmonic of phi
+    """
+    result = ((d - norm(x - xi, axis=1)**2) *
+              (2 * c**2 * phi(x, xi, c) - phi_laplacian(x, xi, c, d)))
+    return result
 
 
 def phi_laplacian(x, xi, c, d):
@@ -61,6 +68,7 @@ def train(X, y, c, lm=0.5, eta=0.5):
     # Build matrix A
     A = np.zeros((n, n))
     for i in range(n):
+        # print phi_biharmonic(X, X[i], c, d)
         if lm == 0:
             A[i] = phi(X, X[i], c)
         else:
@@ -72,65 +80,58 @@ def train(X, y, c, lm=0.5, eta=0.5):
 
 
 # Load dataset
-X, y = make_moons(n_samples=400, noise=0.3, random_state=42)
-# X, y = make_circles(n_samples=400, noise=0.5, random_state=42)
+X, y = make_moons(n_samples=400, noise=0.2, random_state=42)
 
 # Preprocess
 X = scale(X)
 
-# Set parameters
-c = 0.768460891505  # parameter constant
-lm = 0.001  # lambda
+c_vals = np.arange(-10, 10, 0.1)
+lm_vals = np.arange(-10, 10, 2)
 eta = 0.1  # eta
 
+
 # Train and validate
-k = 1
+k = 50
 k_cross_validation_mean = 0.
+max_acc = 0.
+acc_total = 0.
+c_mean = 0.
 for ki in range(k):
     print 'k =', ki
     # Split dataset into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2)
 
-    # Compute weights
-    w = train(X_train, y_train, c, lm, eta)
+    print 'Performing search for %d values of c and %d values of lm' % (len(c_vals), len(lm_vals))
+    for c_it, c in enumerate(c_vals):
+        for lm_it, lm in enumerate(lm_vals):
+            print '(c_%d, lm_%d) = (%f, %f)' % (c_it, lm_it, c, lm)
+            # Compute weights
+            w = train(X_train, y_train, c, lm, eta)
 
-    # Predict test set
-    P_test = np.zeros(y_test.shape)
-    for i, x in enumerate(X_test):
-        # note that we need the dataset which we trained with
-        pred = u(x, w, X_train, c)
-        P_test[i] = pred
+            # Predict test set
+            P_test = np.zeros(y_test.shape)
+            for i, xi in enumerate(X_test):
+                # note that we need the dataset which we trained with
+                pred = u(xi, w, X_train, c)
+                P_test[i] = pred
+            P_test[np.where(P_test > 0.5)] = 1
+            P_test[np.where(P_test <= 0.5)] = 0
+            acc = np.sum(P_test == y_test) / float(len(X_test))
+            if acc > max_acc:
+                best_c = c
+                max_acc = acc
+            print acc
 
-    P_test[np.where(P_test > 0.5)] = 1
-    P_test[np.where(P_test <= 0.5)] = 0
-    acc = np.sum(P_test == y_test) / float(len(X_test)) * 100.
-    print '%.2f%s correct with n =' % (acc, '%'), len(X_test)
-
-    k_cross_validation_mean += acc
+    c_mean += max_acc * best_c
+    acc_total += max_acc
+    print 'c_mean: ', c_mean / float(acc_total)
+    # Plot
+    # Z = P_mesh.reshape(xx.shape)
+    # plt.contour(xx, yy, Z)
+    # plt.scatter(X[:, 0], X[:, 1], c=y)
+    print 'Best acc: %.2f%s correct with n =' % (max_acc * 100, '%'), len(X_test)
+    k_cross_validation_mean += max_acc
 
 k_cross_validation_mean /= k
 print 'K-Cross Validation score: ', k_cross_validation_mean
-
-
-# Create meshgrids
-xl = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 300)
-yl = np.linspace(X_test[:, 1].min(), X_test[:, 1].max(), 300)
-xx, yy = np.meshgrid(xl, yl)
-Z = np.c_[xx.ravel(), yy.ravel()]
-
-# Predict meshgrid
-P_mesh = np.zeros((Z.shape[0]))
-for i, x in enumerate(Z):
-    # note that we need the dataset which we trained with
-    pred = u(x, w, X_train, c)
-    P_mesh[i] = pred
-    P_mesh[np.where(P_mesh > 0.5)] = 1
-    P_mesh[np.where(P_mesh <= 0.5)] = 0
-Z = P_mesh.reshape(xx.shape)
-
-# Plot
-plt.contour(xx, yy, Z)
-plt.scatter(X[:, 0], X[:, 1], c=y)
-
-plt.title('lr')
-plt.show()
