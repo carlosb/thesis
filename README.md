@@ -31,6 +31,12 @@ print 'Accuracy: ', acc * 100.
 print 'ROC score: ', roc
 ````
 
+You should get something like this output:
+````
+Accuracy:  95.0
+ROC score:  0.947368421053
+````
+
 About
 -----
 Please do not hesitate to contact me at carlos.brito524@gmail.com if you have any questions.
