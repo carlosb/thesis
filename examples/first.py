@@ -1,3 +1,7 @@
+"""
+Basic usage of the model interface. Showcases MyModelLR
+and evaluate()
+"""
 from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_moons
