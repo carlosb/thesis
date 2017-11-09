@@ -1,1 +1,1 @@
-import models
+from modelpack import *
