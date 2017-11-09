@@ -3,6 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Custom
+papa/
+papers/
+thesis/
+*.pdf
+*.tex
+*.aux
+*.dvi
+
 # Mac OSX
 .DS_Store
 
