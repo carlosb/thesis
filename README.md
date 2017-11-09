@@ -9,6 +9,8 @@ git clone https://github.com/carlosb/thesis.git
 To use the package you should write your Python files in the same directory as the directory `carlosb/`. Or you can add `carlosb/` to your `PYTHONPATH` but I don't recommend it. To use the models please see the following example:
 
 ````python
+"""first.py"""
+
 from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import make_moons
