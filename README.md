@@ -1,5 +1,11 @@
+# Description
+This repository contains the implementations of the models described in my
+bachelor's dissertation. As of writing the dissertation is not yet completed,
+ however I will continue to implement and push my models to the repo. This repo
+will serve me as a version control tool.
+
 # Downloading
-To download the library just clone the repository with
+To download the module just clone the repository with
 
 ````git
 git clone https://github.com/carlosb/thesis.git
