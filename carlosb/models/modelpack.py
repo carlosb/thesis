@@ -139,8 +139,3 @@ def evaluate(inputs, targets, pred, threshold=0.5):
     acc = np.sum(predictions == targets) / float(len(inputs))
     roc = roc_auc_score(targets, predictions)
     return acc, roc, predictions
-
-
-def plot_decision_boundary():
-    pass
-

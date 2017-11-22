@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
 # Custom
 papa/
 papers/
