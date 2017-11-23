@@ -35,7 +35,7 @@ class Benchmark:
         self.roc = 0
 
     def __repr__(self):
-        res = 'Benchmark(c = %.2f, lm = %.2f, acc = %.2f, roc = %.2f)' % (
+        res = 'Benchmark(c = %.6f, lm = %.6f, acc = %.6f, roc = %.6f)' % (
             self.c, self.lm, self.acc, self.roc)
         return res
 
@@ -57,8 +57,8 @@ for ds in datasets:
     print '- %s' % (filename)
 
 # Parameter search vectors
-cs = np.linspace(0.1, 5, 5 / np.log10(2.))
-lms = np.linspace(0., 10, 6)
+cs = np.arange(0.1, 5, np.log(2.))
+lms = np.arange(0, 10, 2)
 
 # Benchmark list
 benchmarks = []
@@ -94,7 +94,7 @@ for ds in datasets:
                 X_test, y_test = X[test_index], y[test_index]
 
                 # Train and evaluate
-                lr.train(X_train, y_train, c=c, lm=lm, eta=10, it=20)
+                lr.train(X_train, y_train, c=c, lm=lm, eta=0.1, it=20)
                 acc, roc, predictions = evaluate(X_test, y_test, lr.predict)
 
                 # Add to averages
@@ -102,7 +102,7 @@ for ds in datasets:
                 avg_roc += roc
 
                 # Print progress
-                sys.stdout.write('c = %.2f | lm = %.2f | it = %d / %d | k = %d / %d | acc = %.2f | roc = %.2f\r' %
+                sys.stdout.write('c = %.4f | lm = %.4f | it = %d / %d | k = %d / %d | acc = %.4f | roc = %.4f\r' %
                                  (c, lm, current_iterations, total_iterations, ki, k, acc, roc))
                 sys.stdout.flush()
 
