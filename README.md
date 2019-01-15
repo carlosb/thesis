@@ -59,4 +59,4 @@ Please do not hesitate to contact me at carlos.brito524@gmail.com if you have an
 
 # License [![GitHub license](https://img.shields.io/github/license/carlosb/thesis.svg)](https://github.com/carlosb/thesis/blob/master/LICENSE)
 
-All the code is licensed under the GNU General Public License v3.0. If you have any issues with the License please keep them to yourself. I hate bureaucracy.
+All the code is licensed under the GNU General Public License v3.0.
