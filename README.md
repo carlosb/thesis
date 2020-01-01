@@ -1,6 +1,6 @@
 # Description
 This repository contains the implementations of the models described in my
-bachelor's dissertation. As of writing the dissertation is not yet completed,
+[bachelor's dissertation](http://clir-lab.org/repository/Documents/thesis_cdbp.pdf). As of writing the dissertation is not yet completed,
  however I will continue to implement and push my models to the repo. This repo
 will serve me as a version control tool.
 
